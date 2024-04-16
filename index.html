@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <title>15 puzzle</title>
+  <style>
+    button {
+      text-align: center;
+      font-size: 14pt;
+      font-weight: bold;
+      width: 128px;
+      height: 64px;
+    }
+  </style>
+
+  <style>
+    td {
+      border: 2px black;
+      padding: 12px;
+      text-align: center;
+      font-size: 14pt;
+      font-weight: bold;
+      width: 64px;
+      height: 64px;
+    }
+  </style>
+
+  <script>
+    /**
+     * emptyItem is an item where is no number
+     */
+    let emptyItem = null;
+
+    /**
+     * This function is repeated after each click on a number and when is new game started.
+     * The inner cycle runs four times, because the playground has 4 rows and checks if there is a correct value on each square, if so, one is added to the "winValue" variable, and it continues to the next square, if not, the "win" variable is set to "false" and the function terminates.
+     * If the entire row is correct, then one is added to the outer loop and the next row is checked in the same way.
+     * For the number 16, the condition is that the item must remain empty, and if this is the case, a win notification will appear at the top of the page.
+     */
+    function refresh() {
+      let win = true;
+      let winValue = 1;
+
+      for (let index = 0; index < playground.length; index++) {
+        const row = 4;
+
+        for (let index2 = 0; index2 < row; index2++) {
+
+          const htmlEl = document.getElementById(index2 + '-' + index);
+
+          if (htmlEl) {
+            const value = playground[index2][index];
+            //console.log(value);
+
+            if (winValue === value) {
+              winValue++;
+            } else {
+              win = false;
+            }
+
+            if (value === 16) {
+              htmlEl.innerText = '';
+            } else {
+              htmlEl.innerText = value;
+            }
+          } else {
+            win = false;
+          }
+        }
+      }
+      if (win) {
+        alert('Congratulations, you are a winner!!! If you want to play again, click the NEW GAME button.');
+      }
+    }
+
+    /**
+     * Function startNewGame creates a two-dimensional empty array to which it loops to add values.
+     * while-loop: While there are values in the array, for-loops will be executed.
+     * An element is removed from the array using the "splice()" method.
+     * The outer for-loop serves as the x-axis coordinate.
+     * The inner for-loop serves as the y-axis coordinate. If the slot is empty, the selected value is inserted. If this value is 16, then the field will be filled, but there will be no number in it (it serves as an empty field).
+     **/
+    function startNewGame() {
+
+      /**
+       * an array of values
+       * We can put values by for-loop
+       */
+      const values = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];
+      //region add numbers by for-loop
+      /*
+      for (let index = 0; index < 16; index++) {
+        values.push(index + 1);
+      }
+      */
+      //endregion
+      /**
+       * two-dimensional array (rows and columns) with null values, because the numbers are randomly distributed at the start of each game.
+       */
+      playground = [
+        [null, null, null, null],
+        [null, null, null, null],
+        [null, null, null, null],
+        [null, null, null, null]
+      ];
+
+      while (values.length > 0) {
+        const rnd = Math.floor(Math.random() * values.length);
+        //console.log(values.length);
+
+        const value = values[rnd];
+        values.splice(rnd, 1);
+
+        let valueInserted = false;
+
+        for (let index = 0; index < playground.length; index++) {
+          const column = playground[index];
+          console.log(column);
+
+          for (let index2 = 0; index2 < playground.length; index2++) {
+            if (column[index2] == null) {
+              column[index2] = value;
+              if (value === 16) {
+                emptyItem = {x: index, y: index2};
+              }
+              valueInserted = true;
+              break;
+            }
+          }
+          if (valueInserted) {
+            break;
+          }
+        }
+      }
+      refresh();
+    }
+
+    /**
+     * First condition tells us that: If the x-coordinate of the emptyItem is the same as the x-coordinate of the markedItem, and at the same time the absolute value of the difference between the y-coordinate of the emptyItem and the y-coordinate of the markedItem is equal to 1, so these items are exchanged... The coordinates of the emptyItem are written to the console for checking... This condition shuffles the items on the x-axis.
+     * Second condition tells us that: If the y-coordinate of the emptyItem is the same as the y-coordinate of the markedItem, and at the same time the absolute value of the difference between the x-coordinate of the emptyItem and the x-coordinate of the markedItem is equal to 1, so these items are exchanged... The coordinates of the emptyItem are written to the console for checking... This condition shuffles the items on the y-axis.
+     * @param clickedX the x-coordinate of the item that was marked
+     * @param clickedY the y-coordinate of the item that was marked
+     */
+    function itemClicked(clickedX, clickedY) {
+      if (emptyItem.x === clickedX && Math.abs(emptyItem.y - clickedY) === 1) {
+        const temp = playground[emptyItem.x][emptyItem.y];
+        playground[emptyItem.x][emptyItem.y] = playground[clickedX][clickedY];
+        playground[clickedX][clickedY] = temp;
+
+        emptyItem = {x: clickedX, y: clickedY};
+        //console.log(emptyItem.x + "-" + emptyItem.y);
+        refresh();
+      } else if (emptyItem.y === clickedY && Math.abs(emptyItem.x - clickedX) === 1) {
+        const temp = playground[emptyItem.x][emptyItem.y];
+        playground[emptyItem.x][emptyItem.y] = playground[clickedX][clickedY];
+        playground[clickedX][clickedY] = temp;
+
+        emptyItem = {x: clickedX, y: clickedY};
+        //console.log(emptyItem.x + "-" + emptyItem.y);
+        refresh();
+      } else {
+      }
+    }
+  </script>
+
+</head>
+<body onload="startNewGame()">
+<h1>15 Puzzle</h1>
+<hr>
+<h2>What is 15 puzzle?</h2>
+<p>The 15 Puzzle is a sliding puzzle. It has 15 square tiles numbered 1 to 15 in a 4x4 board, with one unoccupied
+  position. Tiles in the same row or column of the open position can be moved by sliding them horizontally or
+  vertically. The goal of the puzzle is to place the tiles in numerical order (from left to right, top to bottom
+  <a href="finalVersionIMG.html">like here</a>).</p>
+
+<table>
+  <tr>
+    <td id="0-0" onclick="itemClicked(0, 0)"></td>
+    <td id="1-0" onclick="itemClicked(1, 0)"></td>
+    <td id="2-0" onclick="itemClicked(2, 0)"></td>
+    <td id="3-0" onclick="itemClicked(3, 0)"></td>
+  </tr>
+  <tr>
+    <td id="0-1" onclick="itemClicked(0, 1)"></td>
+    <td id="1-1" onclick="itemClicked(1, 1)"></td>
+    <td id="2-1" onclick="itemClicked(2, 1)"></td>
+    <td id="3-1" onclick="itemClicked(3, 1)"></td>
+  </tr>
+  <tr>
+    <td id="0-2" onclick="itemClicked(0, 2)"></td>
+    <td id="1-2" onclick="itemClicked(1, 2)"></td>
+    <td id="2-2" onclick="itemClicked(2, 2)"></td>
+    <td id="3-2" onclick="itemClicked(3, 2)"></td>
+  </tr>
+  <tr>
+    <td id="0-3" onclick="itemClicked(0, 3)"></td>
+    <td id="1-3" onclick="itemClicked(1, 3)"></td>
+    <td id="2-3" onclick="itemClicked(2, 3)"></td>
+    <td id="3-3" onclick="itemClicked(3, 3)"></td>
+  </tr>
+</table>
+<button onclick="startNewGame()">NEW GAME</button>
+</body>
+</html>
